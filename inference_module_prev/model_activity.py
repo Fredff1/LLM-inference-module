@@ -324,7 +324,12 @@ class ModelActivity:
     
 
     @staticmethod
-    def build_api_config(model_name: str,api_key: str="default",url: str="default",model_generate_args: dict = "default", **kwargs) -> dict:
+    def build_api_config(model_name: str,
+                         api_key: str="default",
+                         url: str="default",
+                         model_generate_args: dict = "default", 
+                         apply_chat_template: bool = True,
+                         **kwargs) -> dict:
         """
         生成 OpenAI API 配置。
 
@@ -332,6 +337,7 @@ class ModelActivity:
             - api_key: OpenAI API 密钥。
             - model_name: 使用的模型名称。
             - url: API 请求的 URL。
+            - apply_chat_template: 是否使用模型的chat_template
             - kwargs: 其他生成参数。
         
         返回:
@@ -344,11 +350,13 @@ class ModelActivity:
             "model_name": model_name,
             "chat_type": "api",
             "model_generate_args": model_generate_args,
+            "apply_chat_template":apply_chat_template
         }
         if api_key!="default":
             config["api_key"]=api_key
         if url!="default":
             config["url"]=url
+        config.update(kwargs)
         return config
 
     @staticmethod
@@ -362,6 +370,7 @@ class ModelActivity:
         model_generate_args: dict = "default",
         tokenizer_generate_args: dict = "default",
         model_type:str="auto",
+        apply_chat_template: bool = True,
         **kwargs
     ) -> dict:
         """
@@ -403,8 +412,11 @@ class ModelActivity:
             "tokenizer_init_args": tokenizer_init_args,
             "model_generate_args": model_generate_args,
             "tokenizer_generate_args": tokenizer_generate_args,
-            "model_type":model_type
+            "model_type":model_type,
+            "apply_chat_template":apply_chat_template
         }
+        
+        config.update(kwargs)
         return config
 
     @staticmethod
@@ -414,6 +426,7 @@ class ModelActivity:
         vllm_args: dict = "default",
         sampling_params: dict = "default",
         model_type:str="auto",
+        apply_chat_template: bool = True,
         **kwargs
     ) -> dict:
         """
@@ -450,7 +463,8 @@ class ModelActivity:
             "vllm_args": vllm_args,
             "tokenizer_init_args": tokenizer_init_args,
             "sampling_params": sampling_params,
-            "model_type":model_type
+            "model_type":model_type,
+            "apply_chat_template":apply_chat_template
         }
         
         return config
@@ -468,6 +482,7 @@ class ModelActivity:
         model_generate_args: dict = "default",
         tokenizer_generate_args: dict = "default",
         model_type:str="auto",
+        apply_chat_template: bool = True,
         **kwargs
     ) -> dict:
         """
@@ -511,7 +526,8 @@ class ModelActivity:
             "tokenizer_init_args": tokenizer_init_args,
             "model_generate_args": model_generate_args,
             "tokenizer_generate_args": tokenizer_generate_args,
-            "model_type":model_type
+            "model_type":model_type,
+            "apply_chat_template":apply_chat_template,
         }
         full_config.update(kwargs)
         return full_config
@@ -530,6 +546,7 @@ class ModelActivity:
         model_type:str="auto",
         api_key: str="default",
         url: str="default",
+        apply_chat_template: bool = True,
         **kwargs
     ):
         """
@@ -568,6 +585,7 @@ class ModelActivity:
             "model_type":model_type,
             "vllm_args": vllm_args,
             "sampling_params": sampling_params,
+            "apply_chat_template": apply_chat_template,
         }
         if api_key!="default":
             full_config["api_key"]=api_key
@@ -934,7 +952,8 @@ class ModelActivity:
     def _merge_message(self,messages:list):
         ModelActivity.validate_messages(messages)
         output_text = ""
-        if self.chat_type=="api":
+        apply_chat_template=self.config.get("apply_chat_template")
+        if self.chat_type=="api" or apply_chat_template==False:
             for message in messages:
                 role = message["role"]
                 content = message["content"]
@@ -944,13 +963,14 @@ class ModelActivity:
                     output_text += f"user\n{content}\n "
                 elif role == "assistant":
                     output_text += f"assistant\n{content}\n "
-        else:
+        elif apply_chat_template:
             output_text = self.tokenizer.apply_chat_template(
                         messages,
                         tokenize=False,
                         add_generation_prompt=True
                     )
-                
+        else:
+            raise NotImplementedError("apply-chat-template must be set true or false")
         return output_text
     
     def generate_api_response(self,messages:list)->str:
@@ -1295,87 +1315,7 @@ class ModelActivity:
     
     
     
-        
-    def smart_tokenizer_and_embedding_resize(
-        special_tokens_dict: dict,
-        tokenizer: PreTrainedTokenizer,
-        model: PreTrainedModel,
-    ):
-        """
-        Resize tokenizer and embedding.
 
-        Note: This is the unoptimized version that may make your embedding size not be divisible by 64.
-        
-        """
-        # 添加特殊标记到tokenizer中，并调整模型的embedding层大小。
-        num_new_tokens = tokenizer.add_special_tokens(special_tokens_dict)
-        model.resize_token_embeddings(len(tokenizer))
-
-        # 如果添加了新的特殊标记，则对输入和输出的embedding进行初始化。
-        if num_new_tokens > 0:
-            input_embeddings = model.get_input_embeddings().weight.data
-            output_embeddings = model.get_output_embeddings().weight.data
-
-            input_embeddings_avg = input_embeddings[:-num_new_tokens].mean(dim=0, keepdim=True)
-            output_embeddings_avg = output_embeddings[:-num_new_tokens].mean(dim=0, keepdim=True)
-
-            input_embeddings[-num_new_tokens:] = input_embeddings_avg
-            output_embeddings[-num_new_tokens:] = output_embeddings_avg
-        print("enbedding层调整完成")
-        
-    
-    
-    def handle_missing_tokens_qwen(tokenizer: PreTrainedTokenizer,model: PreTrainedModel,model_path:str):
-        model.eval()
-        model.generation_config = GenerationConfig.from_pretrained(model_path, pad_token_id=tokenizer.pad_token_id)
-        model.generation_config.eos_token_id = [151645, 151643]
-        model.generation_config.pad_token_id = 151643
-        model.generation_config.do_sample = False
-        
-    
-    
-    def handle_missing_tokens_and_resize_embeddings(tokenizer: PreTrainedTokenizer,
-                                                    model: PreTrainedModel,model_type="llama"):
-        """
-        ## 函数功能
-        LLama适用的补全缺失id的
-        (1) 处理缺失的标记并调整embedding
-        """
-        # 定义了一些用于标记的默认字符串。
-        IGNORE_INDEX = -100
-        DEFAULT_PAD_TOKEN = "[PAD]"
-        DEFAULT_EOS_TOKEN = "</s>"
-        DEFAULT_BOS_TOKEN = "<s>"
-        DEFAULT_UNK_TOKEN = "<unk>"
-        print("正在补全token")
-        special_tokens_dict = dict()
-        #定义特殊标记的字典。
-        if tokenizer.pad_token is None:
-            print("检测到pad_token缺失")
-            special_tokens_dict["pad_token"] = DEFAULT_PAD_TOKEN
-        if tokenizer.eos_token is None:
-            print("检测到eos_token缺失")
-            special_tokens_dict["eos_token"] = DEFAULT_EOS_TOKEN
-        if tokenizer.bos_token is None:
-            print("检测到bos_token缺失")
-            special_tokens_dict["bos_token"] = DEFAULT_BOS_TOKEN
-        if tokenizer.unk_token is None:
-            print("检测到unk_token缺失")
-            special_tokens_dict["unk_token"] = DEFAULT_UNK_TOKEN
-
-        if tokenizer.pad_token_id is not None:
-            model.config.pad_token_id = tokenizer.pad_token_id
-        if tokenizer.eos_token_id is not None :
-            model.config.eos_token_id = tokenizer.eos_token_id
-        
-        print("已将缺失标记设置为默认值，正在自动调整模型")
-        #调整tokenizer和模型的embedding层大小。
-        ModelActivity.smart_tokenizer_and_embedding_resize(
-            special_tokens_dict=special_tokens_dict,
-            tokenizer=tokenizer,
-            model=model,
-        )
-        print("模型已通过检测")
 
 
 
