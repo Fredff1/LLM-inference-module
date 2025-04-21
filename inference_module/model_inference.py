@@ -24,19 +24,20 @@ class ModelInference:
           full_config (FullConfig): 全局配置对象，包含模型生成、分词器、设备、采样及推理模式相关参数。
           task_name (str): 任务名称，用于日志记录和日志文件命名（可选）。
         """
-        # 初始化日志
-        self.logger = init_logging(task_name=task_name)
+       
         
         self.gpu_manager = gpu_manager
         
         # 保存配置并记录完整配置到日志中
-        self.full_config = full_config
-        config_dict = full_config.to_dict()
+        self.full_config = full_config.to_dict()
+         # 初始化日志
+        self.logger = init_logging(task_name=task_name,log_dir=self.full_config["log_dir"])
+        
         self.logger.info("Initializing ModelInference with the following configuration:")
-        log_config(self.logger, config_dict)
+        log_config(self.logger, self.full_config)
         
         # 根据配置生成具体推理器实例，通过工厂方法统一创建，如 ClassicalInference、APIInference、VLLMInference 等
-        self.inference_engine = create_inference_engine(config_dict,self.gpu_manager,self.logger)
+        self.inference_engine = create_inference_engine(self.full_config,self.gpu_manager,self.logger)
         
         self.logger.info("ModelInference instance successfully initialized.")
     
@@ -55,12 +56,16 @@ class ModelInference:
                 raise ValueError("Input list cannot be empty")
             content_example = input_content[0]
             if isinstance(content_example,str):
-                pass
+                return self._run_group_inference(input_content)
+            elif isinstance(content_example,dict):
+                if apply_chat_template:
+                    input_content = self.apply_chat_template(input_content)
+                return self._run_inference(input_content)
             else:
                 if apply_chat_template:
                     for content in input_content:
                         content = self.apply_chat_template(content)
-            return self._run_group_inference(input_content)
+                return self._run_group_inference(input_content)
         else:
             raise ValueError("Invalid input format.Only support str or list[str]")
 
@@ -94,6 +99,7 @@ class ModelInference:
         results = self.inference_engine.run_batch(input_texts)
         return results
     
+    @staticmethod
     def format_message(user_prompt: Union[str, List[str]],
                    sys_prompt: str = "",
                    assist_prompt: str = "") -> List[Dict[str, Any]]:

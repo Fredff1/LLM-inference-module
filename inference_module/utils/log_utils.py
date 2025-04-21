@@ -29,7 +29,7 @@ def init_logging(task_name: Optional[str] = None,
     if task_name is None:
         log_file_name = datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + ".log"
     else:
-        log_file_name = f"{task_name}.log"
+        log_file_name = f"{os.path.basename(task_name)}.log"
     log_file_path = os.path.join(log_dir, log_file_name)
     
     # 配置日志格式、日期格式，以及输出通道

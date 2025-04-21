@@ -51,14 +51,24 @@ class APIInference(BaseInference):
         :return: API 返回的生成文本
         """
         model_generate_args: Dict[str, Any] = self.config.get("model_generate_args", {})
+        args: Dict[str, Any] = {
+        "model":       self.model_name,
+        "messages":    messages,
+        "temperature": model_generate_args.get("temperature", 0.2),
+        # ...
+        }
+        # 只在配置里明确写了 max_tokens 时，才传给 API
+        if "max_tokens" in model_generate_args:
+            args["max_tokens"] = model_generate_args["max_tokens"]
+        else:
+            args["max_tokens"]=2048
+        # 只在配置里写了 stop 且不为 None 时传
+        stop = model_generate_args.get("stop")
+        if stop:
+            args["stop"] = stop
         try:
             response = self.client.chat.completions.create(
-                messages=messages,
-                model=self.model_name,  # 使用指定模型，例如 GPT-4
-                max_tokens=model_generate_args.get("max_new_tokens", 512),
-                temperature=model_generate_args.get("temperature", 0.2),
-                n=1,                   # 生成一个回答
-                stop=model_generate_args.get("stop", None)
+               **args
             )
             # 从响应中提取生成文本，假设返回格式中 choices[0].message.content 包含回答文本
             generated_text = response.choices[0].message.content

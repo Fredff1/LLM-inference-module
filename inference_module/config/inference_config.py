@@ -160,6 +160,7 @@ class InferenceConfig:
     api_key: Optional[str] = None       # API 模式时使用的密钥
     url: Optional[str] = None           # API 请求地址
     apply_chat_template: bool = True    # 是否应用chat模板，用于部分特殊用途
+    log_dir:str = None
 
     def to_dict(self) -> Dict[str, Any]:
         config = {
@@ -172,6 +173,7 @@ class InferenceConfig:
             "tokenizer_init_args": self.tokenizer_init_params.to_dict(),
             "model_init_args": self.model_init_params.to_dict(),
             "apply_chat_template": self.apply_chat_template,
+            "log_dir":self.log_dir,
         }
         if self.vllm_params:
             config["vllm_args"] = self.vllm_params.to_dict()
