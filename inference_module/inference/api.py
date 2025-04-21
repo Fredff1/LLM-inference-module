@@ -71,7 +71,10 @@ class APIInference(BaseInference):
                **args
             )
             # 从响应中提取生成文本，假设返回格式中 choices[0].message.content 包含回答文本
-            generated_text = response.choices[0].message.content
+            if isinstance(response,str):
+                generated_text = response
+            else:
+                generated_text = response.choices[0].message.content
             return generated_text
         except Exception as e:
             if self.logger:

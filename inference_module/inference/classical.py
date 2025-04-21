@@ -1,7 +1,5 @@
 # inference/classical.py
 
-
-
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from inference_module.inference.base import BaseInference

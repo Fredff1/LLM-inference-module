@@ -91,6 +91,10 @@ class JsonUtil:
     @staticmethod
     def write_jsonlines(file_path, data,mode="a"):
         with open(file_path, mode, encoding="utf-8") as w:
-            for i in data:
-                json.dump(i, w, ensure_ascii=False)
+            if isinstance(data,list):
+                for i in data:
+                    json.dump(i, w, ensure_ascii=False)
+                    w.write('\n')
+            else:
+                json.dump(data, w, ensure_ascii=False)
                 w.write('\n')

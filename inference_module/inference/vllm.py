@@ -1,6 +1,5 @@
 # inference/vllm.py
 
-import torch
 from transformers import AutoTokenizer
 from inference_module.inference.base import BaseInference
 from inference_module.token_hanlder.token_hanlder import handle_missing_tokens
@@ -9,7 +8,7 @@ from inference_module.token_hanlder.token_hanlder import handle_missing_tokens
 try:
     from vllm import LLM ,SamplingParams # vllm 模型类
 except ImportError:
-    print("Vllm 未安装，自动禁用")
+    print("Vllm is disabled because it is not installed")
 
 class VLLMInference(BaseInference):
     def initialize(self) -> None:
