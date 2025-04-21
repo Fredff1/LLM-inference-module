@@ -1,9 +1,9 @@
-from .base import BaseInference
-from .api import APIInference
-from .classical import ClassicalInference
-from .vllm import VLLMInference
+from inference_module.inference.base import BaseInference
+from inference_module.inference.api import APIInference
+from inference_module.inference.classical import ClassicalInference
+from inference_module.inference.vllm import VLLMInference
 
-from gpu_manager.gpu_manager import GPUManager
+from inference_module.gpu_manager.gpu_manager import GPUManager
 
 def create_inference_engine(config:dict,gpu_manager:GPUManager,logger) -> BaseInference:
     type = config.get("chat_type")

@@ -1,11 +1,11 @@
 # model_inference/model_inference.py
 
 from typing import List
-from config.inference_config import InferenceConfig
-from inference.factory import create_inference_engine
-from utils.log_utils import init_logging, log_config
-from utils.message_utils import merge_messages
-from gpu_manager.gpu_manager import GPUManager
+from inference_module.config.inference_config import InferenceConfig
+from inference_module.inference.factory import create_inference_engine
+from inference_module.utils.log_utils import init_logging, log_config
+from inference_module.utils.message_utils import merge_messages
+from inference_module.gpu_manager.gpu_manager import GPUManager
 
 from typing import Union,Dict,Any
 
@@ -42,10 +42,24 @@ class ModelInference:
     
     
         
-    def infer(self,input_content:Union[str,list[str]])->str:
+    def infer(self,input_content:Union[str,list[str],List])->str:
+        apply_chat_template = self.full_config["apply_chat_template"]
+        
+        
         if isinstance(input_content,str):
+            if apply_chat_template:
+                input_content = self.apply_chat_template(input_content)
             return self._run_inference(input_content)
         elif isinstance(input_content,list):
+            if len(input_content) <1:
+                raise ValueError("Input list cannot be empty")
+            content_example = input_content[0]
+            if isinstance(content_example,str):
+                pass
+            else:
+                if apply_chat_template:
+                    for content in input_content:
+                        content = self.apply_chat_template(content)
             return self._run_group_inference(input_content)
         else:
             raise ValueError("Invalid input format.Only support str or list[str]")

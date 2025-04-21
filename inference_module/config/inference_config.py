@@ -101,7 +101,6 @@ class SamplingParams:
     repetition_penalty: float = 1.0       # 重复惩罚，默认1.0
     presence_penalty: float = 0.0         # 出现惩罚
     frequency_penalty: float = 0.0        # 频率惩罚
-    sampling_times: int = 1               # 采样次数
     additional: Dict[str, Any] = field(default_factory=dict)  # 扩展字段
 
     def to_dict(self) -> Dict[str, Any]:

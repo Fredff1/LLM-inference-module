@@ -1,7 +1,7 @@
 # inference/token_handler.py
 
 from abc import ABC, abstractmethod
-from inference.base import BaseInference
+from inference_module.inference.base import BaseInference
 
 def handle_missing_tokens(inference_obj:BaseInference):
     """

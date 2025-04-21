@@ -3,8 +3,8 @@ from abc import ABC, abstractmethod
 from typing import Dict, Any, List
 import os
 
-from gpu_manager.gpu_manager import GPUManager
-from utils.log_utils import init_logging
+from inference_module.gpu_manager.gpu_manager import GPUManager
+from inference_module.utils.log_utils import init_logging
 
 class BaseInference(ABC):
     def __init__(self, config: Dict[str, Any], gpu_manager:GPUManager,logger):

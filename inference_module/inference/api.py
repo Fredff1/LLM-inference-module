@@ -1,7 +1,7 @@
 # inference/api.py
 
 import traceback
-from inference.base import BaseInference
+from inference_module.inference.base import BaseInference
 from typing import Dict, Any, List
 from openai import OpenAI  # 确保已安装 openai 库
 

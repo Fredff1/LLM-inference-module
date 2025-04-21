@@ -2,12 +2,12 @@
 
 import torch
 from transformers import AutoTokenizer
-from inference.base import BaseInference
-from token_hanlder.token_hanlder import handle_missing_tokens
+from inference_module.inference.base import BaseInference
+from inference_module.token_hanlder.token_hanlder import handle_missing_tokens
 
 # 假设 vllm 库已经安装并导入（若未安装，请先安装 vllm 库）
 try:
-    from vllm import LLM  # vllm 模型类
+    from vllm import LLM ,SamplingParams # vllm 模型类
 except ImportError:
     print("Vllm 未安装，自动禁用")
 
@@ -28,7 +28,7 @@ class VLLMInference(BaseInference):
         # 加载分词器
         self.tokenizer = AutoTokenizer.from_pretrained(
             model_full_path,
-            **self.config.get("tokenizer_generate_args")
+            **self.config.get("tokenizer_init_args")
         )
         
         # 获取 vllm 加载参数，从配置中获取或使用默认值（此处参考以前的 format_vllm_args）
@@ -50,6 +50,8 @@ class VLLMInference(BaseInference):
             tokenizer_mode="auto",
             **vllm_args
         )
+        
+        
         # 将加载好的分词器设置到 vllm 模型中
         self.model.set_tokenizer(self.tokenizer)
         # 初始化采样参数，假设采样参数在配置中传入，例如 config["sampling_params"]
@@ -74,7 +76,7 @@ class VLLMInference(BaseInference):
             "sampling_times": 1
         })
         # 这里直接存储字典，可进一步转换成 vllm 所需的 SamplingParams 对象
-        self.sampling_params = sampling_conf
+        self.sampling_params = SamplingParams(**sampling_conf)
 
     def run(self, input_content: str) -> str:
         """

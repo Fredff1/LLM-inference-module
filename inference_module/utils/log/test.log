@@ -390,3 +390,73 @@
 [2025-04-16 21:40:21] [INFO] device_id: 0
 [2025-04-16 21:40:23] [INFO] Added missing special tokens for qwen2.5-0.5B
 [2025-04-16 21:40:23] [INFO] ModelInference instance successfully initialized.
+[2025-04-16 21:57:55] [INFO] 日志系统已初始化
+[2025-04-16 21:57:55] [INFO] 日志文件路径: d:\Code\Python\LLM-inference\inference_module\utils\log\test.log
+[2025-04-16 21:57:55] [INFO] Initializing ModelInference with the following configuration:
+[2025-04-16 21:57:55] [INFO] model_name: qwen2.5-0.5B
+[2025-04-16 21:57:55] [INFO] model_path: D:\Files\Models\
+[2025-04-16 21:57:55] [INFO] chat_type: classical
+[2025-04-16 21:57:55] [INFO] model_type: auto
+[2025-04-16 21:57:55] [INFO] model_generate_args:
+[2025-04-16 21:57:55] [INFO] model_generate_args.max_new_tokens: 1024
+[2025-04-16 21:57:55] [INFO] model_generate_args.temperature: 1.0
+[2025-04-16 21:57:55] [INFO] model_generate_args.top_p: 1.0
+[2025-04-16 21:57:55] [INFO] model_generate_args.top_k: 50
+[2025-04-16 21:57:55] [INFO] model_generate_args.do_sample: True
+[2025-04-16 21:57:55] [INFO] model_generate_args.num_beams: 1
+[2025-04-16 21:57:55] [INFO] model_generate_args.length_penalty: 1.0
+[2025-04-16 21:57:55] [INFO] model_generate_args.use_cache: True
+[2025-04-16 21:57:55] [INFO] model_generate_args.repetition_penalty: 1.0
+[2025-04-16 21:57:55] [INFO] tokenizer_generate_args:
+[2025-04-16 21:57:55] [INFO] tokenizer_generate_args.padding: True
+[2025-04-16 21:57:55] [INFO] tokenizer_generate_args.add_special_tokens: True
+[2025-04-16 21:57:55] [INFO] tokenizer_generate_args.return_tensors: pt
+[2025-04-16 21:57:55] [INFO] tokenizer_init_args:
+[2025-04-16 21:57:55] [INFO] tokenizer_init_args.padding_side: left
+[2025-04-16 21:57:55] [INFO] tokenizer_init_args.trust_remote_code: True
+[2025-04-16 21:57:55] [INFO] tokenizer_init_args.cache_dir: (None,)
+[2025-04-16 21:57:55] [INFO] model_init_args:
+[2025-04-16 21:57:55] [INFO] model_init_args.trust_remote_code: True
+[2025-04-16 21:57:55] [INFO] model_init_args.torch_dtype: auto
+[2025-04-16 21:57:55] [INFO] model_init_args.cache_dir: None
+[2025-04-16 21:57:55] [INFO] apply_chat_template: False
+[2025-04-16 21:57:55] [INFO] device_config:
+[2025-04-16 21:57:55] [INFO] device_config.device: cuda:0
+[2025-04-16 21:57:55] [INFO] device_id: 0
+[2025-04-16 21:57:58] [INFO] Added missing special tokens for qwen2.5-0.5B
+[2025-04-16 21:57:58] [INFO] ModelInference instance successfully initialized.
+[2025-04-21 18:01:39] [INFO] 日志系统已初始化
+[2025-04-21 18:01:39] [INFO] 日志文件路径: d:\Code\Python\2025 Spring Artifitial Intelligence\LLM_eval\inference_module\utils\log\test.log
+[2025-04-21 18:01:39] [INFO] Initializing ModelInference with the following configuration:
+[2025-04-21 18:01:39] [INFO] model_name: qwen2.5-0.5B
+[2025-04-21 18:01:39] [INFO] model_path: D:\Files\Models\
+[2025-04-21 18:01:39] [INFO] chat_type: classical
+[2025-04-21 18:01:39] [INFO] model_type: auto
+[2025-04-21 18:01:39] [INFO] model_generate_args:
+[2025-04-21 18:01:39] [INFO] model_generate_args.max_new_tokens: 1024
+[2025-04-21 18:01:39] [INFO] model_generate_args.temperature: 1.0
+[2025-04-21 18:01:39] [INFO] model_generate_args.top_p: 1.0
+[2025-04-21 18:01:39] [INFO] model_generate_args.top_k: 50
+[2025-04-21 18:01:39] [INFO] model_generate_args.do_sample: True
+[2025-04-21 18:01:39] [INFO] model_generate_args.num_beams: 1
+[2025-04-21 18:01:39] [INFO] model_generate_args.length_penalty: 1.0
+[2025-04-21 18:01:39] [INFO] model_generate_args.use_cache: True
+[2025-04-21 18:01:39] [INFO] model_generate_args.repetition_penalty: 1.0
+[2025-04-21 18:01:39] [INFO] tokenizer_generate_args:
+[2025-04-21 18:01:39] [INFO] tokenizer_generate_args.padding: True
+[2025-04-21 18:01:39] [INFO] tokenizer_generate_args.add_special_tokens: True
+[2025-04-21 18:01:39] [INFO] tokenizer_generate_args.return_tensors: pt
+[2025-04-21 18:01:39] [INFO] tokenizer_init_args:
+[2025-04-21 18:01:39] [INFO] tokenizer_init_args.padding_side: left
+[2025-04-21 18:01:39] [INFO] tokenizer_init_args.trust_remote_code: True
+[2025-04-21 18:01:39] [INFO] tokenizer_init_args.cache_dir: (None,)
+[2025-04-21 18:01:39] [INFO] model_init_args:
+[2025-04-21 18:01:39] [INFO] model_init_args.trust_remote_code: True
+[2025-04-21 18:01:39] [INFO] model_init_args.torch_dtype: auto
+[2025-04-21 18:01:39] [INFO] model_init_args.cache_dir: None
+[2025-04-21 18:01:39] [INFO] apply_chat_template: False
+[2025-04-21 18:01:39] [INFO] device_config:
+[2025-04-21 18:01:39] [INFO] device_config.device: cuda:0
+[2025-04-21 18:01:39] [INFO] device_id: 0
+[2025-04-21 18:01:42] [INFO] Added missing special tokens for qwen2.5-0.5B
+[2025-04-21 18:01:42] [INFO] ModelInference instance successfully initialized.

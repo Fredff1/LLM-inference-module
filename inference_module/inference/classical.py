@@ -4,10 +4,10 @@
 
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
-from .base import BaseInference
+from inference_module.inference.base import BaseInference
 from typing import List
 
-from token_hanlder.token_hanlder import handle_missing_tokens
+from inference_module.token_hanlder.token_hanlder import handle_missing_tokens
 
 
 

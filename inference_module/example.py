@@ -15,7 +15,7 @@ def main():
     )
     
     model_infer = ModelInference(config,"test",GPUManager(2))
-    result = model_infer.infer("介绍一下你自己")
+    result = model_infer.infer(["介绍一下C++是什么样的编程语言","介绍一下Java是什么样的编程语言"])
     print(f"Infer:{result}")
 
 if __name__ == "__main__":
