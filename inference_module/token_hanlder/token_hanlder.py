@@ -59,7 +59,7 @@ class LlamaTokenHandler(BaseTokenHandler):
                 inference_obj.tokenizer.add_eos_token = False
                 # 设置采样的 stop_token_ids
                 stop_token_ids = [128001, 128008, 128009]
-                inference_obj.sampling_params["stop_token_ids"] = stop_token_ids
+                inference_obj.sampling_params.stop_token_ids = stop_token_ids
             else:  # classical 模式
                 from transformers import GenerationConfig
                 inference_obj.model.generation_config = GenerationConfig.from_pretrained(
@@ -80,7 +80,7 @@ class QwenTokenHandler(BaseTokenHandler):
                 inference_obj.tokenizer.pad_token = '<|endoftext|>'
                 inference_obj.tokenizer.pad_token_id = 151643
                 stop_token_ids = [151645, 151643]
-                inference_obj.sampling_params["stop_token_ids"] = stop_token_ids
+                inference_obj.sampling_params.stop_token_ids = stop_token_ids
             else:
                 from transformers import GenerationConfig
                 inference_obj.model.generation_config = GenerationConfig.from_pretrained(

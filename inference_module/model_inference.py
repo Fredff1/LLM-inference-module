@@ -48,8 +48,6 @@ class ModelInference:
         
         
         if isinstance(input_content,str):
-            if apply_chat_template:
-                input_content = self.apply_chat_template(input_content)
             return self._run_inference(input_content)
         elif isinstance(input_content,list):
             if len(input_content) <1:

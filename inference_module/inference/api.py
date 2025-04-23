@@ -1,6 +1,9 @@
 # inference/api.py
 
 import traceback
+import unicodedata
+import random
+import time
 from inference_module.inference.base import BaseInference
 from typing import Dict, Any, List
 from openai import OpenAI  # 确保已安装 openai 库
@@ -13,9 +16,11 @@ class APIInference(BaseInference):
           - 设置模型名称等参数
         注意：API 模式不加载本地模型与分词器，因此不需要 device 管理配置
         """
+        api_config=self.config["api_config"]
+        self.api_config=api_config
         self.client = OpenAI(
-            api_key=self.config.get("api_key"),
-            base_url=self.config.get("url")
+            api_key=api_config.get("api_key"),
+            base_url=api_config.get("url")
         )
         self.model_name = self.config["model_name"]
 
@@ -42,6 +47,10 @@ class APIInference(BaseInference):
             result = self.run(content)
             results.append(result)
         return results
+    
+    def decode_unicode_response(content):
+        content = unicodedata.normalize('NFKC', content)
+        return content
 
     def _generate_api_response(self, messages: List[Dict[str, Any]]) -> str:
         """
@@ -66,20 +75,44 @@ class APIInference(BaseInference):
         stop = model_generate_args.get("stop")
         if stop:
             args["stop"] = stop
-        try:
-            response = self.client.chat.completions.create(
-               **args
-            )
-            # 从响应中提取生成文本，假设返回格式中 choices[0].message.content 包含回答文本
-            if isinstance(response,str):
-                generated_text = response
-            else:
-                generated_text = response.choices[0].message.content
-            return generated_text
-        except Exception as e:
-            if self.logger:
-                self.logger.error("Error occurred when using API to generate response", exc_info=True)
-            else:
-                print("Error occurred when using API to generate response")
-                traceback.print_exc()
-            return ""
+            
+        max_retries    = self.api_config.get("api_max_retries", 3)
+        backoff_factor = self.api_config.get("api_backoff_base", 1.0)  # 秒
+        
+        for attempt in range(1, max_retries + 1):
+            try:
+                resp = self.client.chat.completions.create(**args)
+                # 提取文本
+                if isinstance(resp, str):
+                    return resp
+                return resp.choices[0].message.content
+
+            except Exception as e:
+                # 记录错误
+                msg = f"[API attempt {attempt}/{max_retries}] Error: {e}"
+                if self.logger:
+                    self.logger.warning(msg, exc_info=True)
+                else:
+                    print(msg)
+                    traceback.print_exc()
+
+                # 如果已经是最后一次，返回空字符串或抛出
+                if attempt == max_retries:
+                    final_msg = f"API Failed after repeating {max_retries} times, aborting."
+                    if self.logger:
+                        self.logger.error(final_msg)
+                    else:
+                        print(final_msg)
+                    return ""
+
+                # 计算指数退避时间 + 随机抖动
+                sleep_time = backoff_factor * (2 ** (attempt - 1))
+                # 可加入微小随机抖动，防止雪崩
+                jitter = sleep_time * 0.1
+                time_to_sleep = sleep_time + (jitter * (2 * random.random() - 1))
+                if self.logger:
+                    self.logger.info(f"Sleeping {time_to_sleep:.2f}s before retry…")
+                time.sleep(time_to_sleep)
+                # 进入下一次重试
+                continue
+

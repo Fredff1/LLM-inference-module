@@ -131,6 +131,19 @@ class DeviceConfig:
             return {"device_map": "auto", "max_memory": self.max_memory}
         else:
             return {"device": f"cuda:{self.device_id}"}
+        
+@dataclass
+class ApiConfig:
+    api_key: str = None       # API 模式时使用的密钥
+    url: str = None           # API 请求地址
+    max_retries :int = 3
+    backoff_factor :float = 1.0
+    
+    def to_dict(self) -> Dict[str, Any]:
+        # 合并 asdict() 输出和 additional，确保 additional 中的值可以覆盖默认值
+        params = asdict(self)
+        return {**params}
+    
 
 # -------------------------------
 # FullConfig 整体配置数据类
@@ -157,9 +170,8 @@ class InferenceConfig:
     tokenizer_init_params:TokenizerInitParams = field(default_factory=TokenizerInitParams)
     vllm_params: Optional[VLLMParams] = None  # 仅 vLLM 模式下使用
     sampling_params: Optional[SamplingParams] = None  # 如果使用 vLLM 或需要单独控制采样，则传入
-    api_key: Optional[str] = None       # API 模式时使用的密钥
-    url: Optional[str] = None           # API 请求地址
-    apply_chat_template: bool = True    # 是否应用chat模板，用于部分特殊用途
+    api_config: Optional[ApiConfig] = None
+    apply_chat_template: bool = False    # 是否应用chat模板，用于部分特殊用途
     log_dir:str = None
 
     def to_dict(self) -> Dict[str, Any]:
@@ -179,16 +191,15 @@ class InferenceConfig:
             config["vllm_args"] = self.vllm_params.to_dict()
         if self.sampling_params:
             config["sampling_params"] = self.sampling_params.to_dict()
-        if self.api_key:
-            config["api_key"] = self.api_key
-        if self.url:
-            config["url"] = self.url
+        if self.api_config:
+            config["api_config"] = self.api_config.to_dict()
+        
         if self.device_config:
             config['device_config'] = self.device_config.to_dict()
             config['device_id']=self.device_config.device_id
         
         if self.chat_type == "api":
-            if self.api_key is None or self.url is None:
+            if self.api_config is None or config["api_config"].get("api_key",None) is None or config["api_config"].get("url") is None:
                 raise ValueError("api key and url must be provided for api chat")
         elif self.chat_type == "vllm":
              if self.vllm_params is None or self.sampling_params is None:
