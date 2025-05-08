@@ -14,7 +14,9 @@ def handle_missing_tokens(inference_obj:BaseInference):
         "llama3": LlamaTokenHandler(),
         "llama": LlamaTokenHandler(),
         "qwen2.5": QwenTokenHandler(),
-        "qwen2": QwenTokenHandler()
+        "qwen2": QwenTokenHandler(),
+        "qwen3": QwenTokenHandler(),
+        "qwen":QwenTokenHandler()
     }
     
     # 若 model_type 为自动判断则先推断

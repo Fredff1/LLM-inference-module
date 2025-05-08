@@ -93,7 +93,7 @@ class VLLMParams:
         return {**params, **additional}
     
 @dataclass
-class SamplingParams:
+class VllmSamplingParams:
     max_tokens: int = 1024                # 对应原代码中的 max_tokens
     temperature: float = 1.0              # 温度，默认设置为 1.0，可根据需求调整
     top_p: float = 1.0                    # 累计概率阈值，默认1.0
@@ -169,7 +169,7 @@ class InferenceConfig:
     model_init_params: ModelInitParams = field(default_factory=ModelInitParams)
     tokenizer_init_params:TokenizerInitParams = field(default_factory=TokenizerInitParams)
     vllm_params: Optional[VLLMParams] = None  # 仅 vLLM 模式下使用
-    sampling_params: Optional[SamplingParams] = None  # 如果使用 vLLM 或需要单独控制采样，则传入
+    sampling_params: Optional[VllmSamplingParams] = None  # 如果使用 vLLM 或需要单独控制采样，则传入
     api_config: Optional[ApiConfig] = None
     apply_chat_template: bool = False    # 是否应用chat模板，用于部分特殊用途
     log_dir:str = None

@@ -138,14 +138,15 @@ class ModelInference:
         return messages
     
     
-    def apply_chat_template(self,messages,tokenize=False,add_generation_prompt=True):
+    def apply_chat_template(self,messages,tokenize=False,add_generation_prompt=True,**additional_params):
         tokenizer = self.inference_engine.tokenizer
         template_available = self.inference_engine.config.get("apply_chat_template")
         if template_available:
             text = tokenizer.apply_chat_template(
                         messages,
                         tokenize=tokenize,
-                        add_generation_prompt=add_generation_prompt
+                        add_generation_prompt=add_generation_prompt,
+                        **additional_params
                     )
             return text
         else:
