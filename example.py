@@ -24,6 +24,7 @@ def vanilla_infer():
 def api_infer():
     config = InferenceConfig(
             model_name="qwen2.5-0.5B",
+            chat_type="api",
             generation_params=GenerationParams(),
             api_config=ApiConfig(
                 api_key="sk-your-api-key",
@@ -39,7 +40,7 @@ def vllm_infer():
     config = InferenceConfig(
         model_name="qwen2.5-0.5B",
         model_path="/mnt/data/models/",
-        chat_type="classical",
+        chat_type="vllm",
         device_config=DeviceConfig(0,40),
         generation_params=GenerationParams(),
         tokenizer_params=TokenizerParams(),
