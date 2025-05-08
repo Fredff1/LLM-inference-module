@@ -136,6 +136,7 @@ for r in results:
   * `apply_chat_template`: 是否对消息应用模板
   * `log_dir`: 日志记录的路径
 
+---
 
 * **GenerationParams**: 模型生成参数
   * `max_new_tokens` 最多添加的token
