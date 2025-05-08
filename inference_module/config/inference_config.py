@@ -160,7 +160,7 @@ class ApiConfig:
 @dataclass
 class InferenceConfig:
     model_name: str                     # 模型名称
-    model_path: str                     # 模型所在根路径（通常后续与 model_name 拼接）
+    model_path: str = ""                     # 模型所在根路径（通常后续与 model_name 拼接）
     chat_type: str = "classical"        # 推理模式，示例支持： "api", "vllm", "pipeline", "classical"
     model_type:str = 'auto'
     device_config: DeviceConfig = None

@@ -44,28 +44,15 @@ class ModelInference:
     
         
     def infer(self,input_content:Union[str,list[str],List])->str:
-        apply_chat_template = self.full_config["apply_chat_template"]
-        
-        
-        if isinstance(input_content,str):
-            return self._run_inference(input_content)
-        elif isinstance(input_content,list):
-            if len(input_content) <1:
-                raise ValueError("Input list cannot be empty")
-            content_example = input_content[0]
-            if isinstance(content_example,str):
-                return self._run_group_inference(input_content)
-            elif isinstance(content_example,dict):
-                if apply_chat_template:
-                    input_content = self.apply_chat_template(input_content)
-                return self._run_inference(input_content)
-            else:
-                if apply_chat_template:
-                    for content in input_content:
-                        content = self.apply_chat_template(content)
-                return self._run_group_inference(input_content)
+        proc,content_type = self.inference_engine.validate_input(input_content)
+
+        # 如果归一化后是列表，视为批量
+        if content_type=="list":
+            return self.inference_engine.run_batch(proc)
+        elif content_type=="single":
+            return self.inference_engine.run(proc)
         else:
-            raise ValueError("Invalid input format.Only support str or list[str]")
+            raise ValueError("Invalid input content")
 
 
     def _run_inference(self, input_text: str) -> str:

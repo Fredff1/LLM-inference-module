@@ -70,3 +70,18 @@ class ClassicalInference(BaseInference):
         # 分别对每一条输出进行解码
         results = self.tokenizer.batch_decode(generated_outputs, skip_special_tokens=True)
         return results
+    
+    def validate_input(self, input):
+        from inference_module.utils.message_utils import format_message
+        tpl = self.config.get("apply_chat_template", False)
+
+        # 纯文本
+        if isinstance(input, str):
+            return input, "single"
+        if isinstance(input, list) and input and all(isinstance(x, str) for x in input):
+            return input, "list"
+
+        
+        raise ValueError(
+            "Classical/VLLM 模式下，只支持 str 或 List[str]；"
+        )

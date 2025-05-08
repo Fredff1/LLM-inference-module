@@ -1,6 +1,6 @@
 # inference/base.py
 from abc import ABC, abstractmethod
-from typing import Dict, Any, List
+from typing import Dict, Any, List,Union
 import os
 
 from inference_module.gpu_manager.gpu_manager import GPUManager
@@ -47,5 +47,16 @@ class BaseInference(ABC):
         批量输入的推理生成接口
         :param input_texts: 包含多条输入文本的列表
         :return: 每条输入对应的生成文本结果的列表
+        """
+        pass
+    
+    @abstractmethod
+    def validate_input(
+        self,
+        input: Union[str, List[str], List[Dict[str, Any]]]
+    ) -> Union[str, List[str], List[Dict[str, Any]]]:
+        """
+        校验并归一化输入，合法时返回子类 run/run_batch 能直接接受的格式，
+        否则抛 ValueError。
         """
         pass

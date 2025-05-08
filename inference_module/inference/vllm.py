@@ -96,3 +96,18 @@ class VLLMInference(BaseInference):
         # 遍历每个生成结果，提取文本
         result_texts = [output.outputs[0].text for output in outputs]
         return result_texts
+    
+    def validate_input(self, input):
+        from inference_module.utils.message_utils import format_message
+        tpl = self.config.get("apply_chat_template", False)
+
+        # 纯文本
+        if isinstance(input, str):
+            return input, "single"
+        if isinstance(input, list) and input and all(isinstance(x, str) for x in input):
+            return input, "list"
+
+        
+        raise ValueError(
+            "Classical/VLLM 模式下，只支持 str 或 List[str]；"
+        )

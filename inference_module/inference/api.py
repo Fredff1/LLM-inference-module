@@ -48,6 +48,19 @@ class APIInference(BaseInference):
             results.append(result)
         return results
     
+    
+    def validate_input(self, input):
+        from inference_module.utils.message_utils import format_message
+
+        # 仅接受 dict 或 List[dict]
+
+        if isinstance(input, list) and input and all(isinstance(x, dict) for x in input):
+            return input,"single"
+        elif isinstance(input, list) and input and all(isinstance(x, list) for x in input):
+            return input,"list"
+        # 如果有人传 str，我们不自动 format——直接报错
+        raise ValueError("API 模式只支持标准消息格式")
+    
     def decode_unicode_response(content):
         content = unicodedata.normalize('NFKC', content)
         return content
