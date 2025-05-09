@@ -86,8 +86,8 @@ class ModelInference:
     
     @staticmethod
     def format_message(user_prompt: Union[str, List[str]],
-                   sys_prompt: str = "",
-                   assist_prompt: str = "") -> List[Dict[str, Any]]:
+                   sys_prompt: str = None,
+                   assist_prompt: str = None) -> List[Dict[str, Any]]:
         """
         构造用于推理的消息列表，每条消息包含 role 和 content 字段。
         
@@ -112,7 +112,6 @@ class ModelInference:
         if not user_prompt:
             raise ValueError("不合法的用户输入，你必须指定一个有效的用户输入作为 prompt")
         
-        # 如果 user_prompt 为列表，则对每个文本构造单独的消息
         if isinstance(user_prompt, list):
             for prompt in user_prompt:
                 messages.append({"role": "user", "content": prompt})
