@@ -6,7 +6,7 @@ import random
 import time
 from inference_module.inference.base import BaseInference
 from typing import Dict, Any, List
-from openai import OpenAI  # 确保已安装 openai 库
+from openai import OpenAI  
 
 class APIInference(BaseInference):
     def initialize(self) -> None:
@@ -52,13 +52,11 @@ class APIInference(BaseInference):
     def validate_input(self, input):
         from inference_module.utils.message_utils import format_message
 
-        # 仅接受 dict 或 List[dict]
 
         if isinstance(input, list) and input and all(isinstance(x, dict) for x in input):
             return input,"single"
         elif isinstance(input, list) and input and all(isinstance(x, list) for x in input):
             return input,"list"
-        # 如果有人传 str，我们不自动 format——直接报错
         raise ValueError("API 模式只支持标准消息格式")
     
     def decode_unicode_response(content):
@@ -77,31 +75,27 @@ class APIInference(BaseInference):
         "model":       self.model_name,
         "messages":    messages,
         "temperature": model_generate_args.get("temperature", 0.2),
-        # ...
         }
-        # 只在配置里明确写了 max_tokens 时，才传给 API
         if "max_tokens" in model_generate_args:
             args["max_tokens"] = model_generate_args["max_tokens"]
         else:
             args["max_tokens"]=2048
-        # 只在配置里写了 stop 且不为 None 时传
         stop = model_generate_args.get("stop")
         if stop:
             args["stop"] = stop
             
         max_retries    = self.api_config.get("api_max_retries", 3)
-        backoff_factor = self.api_config.get("api_backoff_base", 1.0)  # 秒
+        backoff_factor = self.api_config.get("api_backoff_base", 1.0)  
         
         for attempt in range(1, max_retries + 1):
             try:
                 resp = self.client.chat.completions.create(**args)
-                # 提取文本
+
                 if isinstance(resp, str):
                     return resp
                 return resp.choices[0].message.content
 
             except Exception as e:
-                # 记录错误
                 msg = f"[API attempt {attempt}/{max_retries}] Error: {e}"
                 if self.logger:
                     self.logger.warning(msg, exc_info=True)
@@ -109,7 +103,6 @@ class APIInference(BaseInference):
                     print(msg)
                     traceback.print_exc()
 
-                # 如果已经是最后一次，返回空字符串或抛出
                 if attempt == max_retries:
                     final_msg = f"API Failed after repeating {max_retries} times, aborting."
                     if self.logger:
@@ -118,14 +111,12 @@ class APIInference(BaseInference):
                         print(final_msg)
                     return ""
 
-                # 计算指数退避时间 + 随机抖动
                 sleep_time = backoff_factor * (2 ** (attempt - 1))
-                # 可加入微小随机抖动，防止雪崩
+
                 jitter = sleep_time * 0.1
                 time_to_sleep = sleep_time + (jitter * (2 * random.random() - 1))
                 if self.logger:
                     self.logger.info(f"Sleeping {time_to_sleep:.2f}s before retry…")
                 time.sleep(time_to_sleep)
-                # 进入下一次重试
                 continue
 

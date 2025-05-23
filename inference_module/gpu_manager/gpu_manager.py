@@ -81,14 +81,14 @@ class GPUManager:
         """获取下一个可用的 GPU的id ，返回设备的id(从0开始)"""
         if not self.available_gpus:
             raise RuntimeError("No available GPU.")
-        return self.available_gpus.pop(0)  # 从列表中分配一个 GPU
+        return self.available_gpus.pop(0)  
 
     def get_next_available_gpu(self):
         """获取下一个可用的 GPU 设备，返回完整设备名"""
         if not self.available_gpus:
             raise RuntimeError("No available GPU.")
         id=self.available_gpus.pop(0)
-        return self.get_device_from_id(id)  # 从列表中分配一个 GPU
+        return self.get_device_from_id(id) 
     
     def get_device_from_id(self,gpu_id):
         """根据GPU的id获得具体设备名"""

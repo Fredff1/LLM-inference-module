@@ -119,35 +119,38 @@ for r in results:
 
 ## 配置说明
 
-* **InferenceConfig**：核心配置类，主要字段：
+### InferenceConfig：核心配置类，主要字段：
 
-  * `model_name`: 模型名称（如 gpt2、llama3 等）
-  * `model_path`: 模型路径,为到达模型文件夹的**前一级**目录
-  * `chat_type`: 推理模式（"classical"/"vllm"/"api"）
-  * `model_type`: 模型类型（如qwen/llama）
-  * `device_config` 设备配置
-  * `generation_params`: 生成参数 (max\_new\_tokens, temperature, top\_p 等)
-  * `tokenizer_params`: 分词器参数 (padding, return\_tensors 等)
-  * `tokenizer_init_params` 分词器加载参数（padding）
-  * `model_init_params`: 模型加载参数 (trust\_remote\_code, cache\_dir 等)
-  * `vllm_params`: vLLM 特有加载参数 用于加载LLM类
-  * `sampling_params`: vLLM 采样参数 VllmSamplingParam,不要和vllm的SamplingParam混淆
-  * `api_config`, API模式的配置
-  * `apply_chat_template`: 是否对消息应用模板
-  * `log_dir`: 日志记录的路径
+* `model_name`: 模型名称（如 gpt2、llama3 等）
+* `model_path`: 模型路径,为到达模型文件夹的**前一级**目录
+* `chat_type`: 推理模式（"classical"/"vllm"/"api"）
+* `model_type`: 模型类型（如qwen/llama）
+* `device_config` 设备配置
+* `generation_params`: 生成参数 (max\_new\_tokens, temperature, top\_p 等)
+* `tokenizer_params`: 分词器参数 (padding, return\_tensors 等)
+* `tokenizer_init_params` 分词器加载参数（padding）
+* `model_init_params`: 模型加载参数 (trust\_remote\_code, cache\_dir 等)
+* `vllm_params`: vLLM 特有加载参数 用于加载LLM类
+* `sampling_params`: vLLM 采样参数 VllmSamplingParam,不要和vllm的SamplingParam混淆
+* `api_config`, API模式的配置
+* `apply_chat_template`: 是否对消息应用模板
+* `log_dir`: 日志记录的路径
 
 ---
 
-* **GenerationParams**: 模型生成参数
-  * `max_new_tokens` 最多添加的token
-  * `temperature` 推理温度
-  * `top_p` Nucleus sampling 截断概率，默认1
-  * `top_k` Top-K 筛选大小，原函数默认50
-  * `num_beams` beam_search的参数 默认1，不启用
-  * `length_penalty` 长度惩罚，默认1.0
-  * `use_cache` 启用缓存，一般设置为True
-  * `repetition_penalty` 重复惩罚，默认1.0，不启用重复惩罚
-  * `repetition_penalty` 额外参数，不同模型可能支持额外的生成参数
+### GenerationParams: 模型生成参数
+
+* `max_new_tokens` 最多添加的token
+* `temperature` 推理温度
+* `top_p` Nucleus sampling 截断概率，默认1
+* `top_k` Top-K 筛选大小，原函数默认50
+* `num_beams` beam_search的参数 默认1，不启用
+* `length_penalty` 长度惩罚，默认1.0
+* `use_cache` 启用缓存，一般设置为True
+* `repetition_penalty` 重复惩罚，默认1.0，不启用重复惩罚
+* `repetition_penalty` 额外参数，不同模型可能支持额外的生成参数
+
+---
   
 ### TokenizerParams：分词器生成时的参数
 

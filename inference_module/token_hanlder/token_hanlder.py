@@ -9,7 +9,6 @@ def handle_missing_tokens(inference_obj:BaseInference):
     要求 inference_obj 中已存在以下属性：model_type, model_name, chat_type,
     model_path, tokenizer, model（可选，对于 classical 模式），sampling_params, logger
     """
-    # 建立模型类型到处理器的映射
     handler_map = {
         "llama3": LlamaTokenHandler(),
         "llama": LlamaTokenHandler(),
@@ -19,7 +18,6 @@ def handle_missing_tokens(inference_obj:BaseInference):
         "qwen":QwenTokenHandler()
     }
     
-    # 若 model_type 为自动判断则先推断
     if inference_obj.config["model_type"] == "auto":
         if "llama" in inference_obj.model_name.lower():
             inference_obj.config["model_type"] = "llama3"
@@ -49,20 +47,17 @@ class BaseTokenHandler(ABC):
                               - logger
         """
         pass
-# inference/token_handler.py 继续写入
 
 class LlamaTokenHandler(BaseTokenHandler):
     def handle(self, inference_obj):
-        # 对于 llama 类型，根据模式分别处理
         try:
             if inference_obj.chat_type == "vllm":
                 inference_obj.tokenizer.pad_token = '<|end_of_text|>'
                 inference_obj.tokenizer.add_bos_token = False
                 inference_obj.tokenizer.add_eos_token = False
-                # 设置采样的 stop_token_ids
                 stop_token_ids = [128001, 128008, 128009]
                 inference_obj.sampling_params.stop_token_ids = stop_token_ids
-            else:  # classical 模式
+            else:  
                 from transformers import GenerationConfig
                 inference_obj.model.generation_config = GenerationConfig.from_pretrained(
                     inference_obj.full_path, pad_token_id=inference_obj.tokenizer.pad_token_id)

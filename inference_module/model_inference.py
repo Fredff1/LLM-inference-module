@@ -28,25 +28,33 @@ class ModelInference:
         
         self.gpu_manager = gpu_manager
         
-        # 保存配置并记录完整配置到日志中
         self.full_config = full_config.to_dict()
-         # 初始化日志
+
         self.logger = init_logging(task_name=task_name,log_dir=self.full_config["log_dir"])
         
         self.logger.info("Initializing ModelInference with the following configuration:")
         log_config(self.logger, self.full_config)
         
-        # 根据配置生成具体推理器实例，通过工厂方法统一创建，如 ClassicalInference、APIInference、VLLMInference 等
         self.inference_engine = create_inference_engine(self.full_config,self.gpu_manager,self.logger)
         
         self.logger.info("ModelInference instance successfully initialized.")
     
     
         
-    def infer(self,input_content:Union[str,list[str],List])->str:
+    def infer(self,input_content:Union[str,list[str],List])->Union[str,List[str]]:
+        """推理入口
+
+        Args:
+            input_content (Union[str,list[str],List]): 输入的文本（用于本地推理）或消息（用于api）
+
+        Raises:
+            ValueError: 当不支持推理输入的内容时抛出
+
+        Returns:
+            Union[str,List[str]]: 推理结果
+        """
         proc,content_type = self.inference_engine.validate_input(input_content)
 
-        # 如果归一化后是列表，视为批量
         if content_type=="list":
             return self.inference_engine.run_batch(proc)
         elif content_type=="single":
