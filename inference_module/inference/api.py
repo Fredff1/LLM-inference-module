@@ -4,18 +4,13 @@ import traceback
 import unicodedata
 import random
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from inference_module.inference.base import BaseInference
 from typing import Dict, Any, List
 from openai import OpenAI  
 
 class APIInference(BaseInference):
     def initialize(self) -> None:
-        """
-        初始化 API 模式：
-          - 根据配置创建 OpenAI 客户端
-          - 设置模型名称等参数
-        注意：API 模式不加载本地模型与分词器，因此不需要 device 管理配置
-        """
         api_config=self.config["api_config"]
         self.api_config=api_config
         self.client = OpenAI(
@@ -42,10 +37,27 @@ class APIInference(BaseInference):
         :param input_texts: 多条输入提示文本组成的列表
         :return: 每条输入对应的生成文本结果列表
         """
-        results = []
-        for content in input_contents:
-            result = self.run(content)
-            results.append(result)
+        max_concurrency = self.api_config.get("max_concurrent_requests")
+        if max_concurrency is None:
+            import os
+            max_concurrency = min(len(input_contents), (os.cpu_count() or 1) * 5)
+
+        results = [None] * len(input_contents)
+        with ThreadPoolExecutor(max_workers=max_concurrency) as executor:
+            future_to_idx = {
+                executor.submit(self.run, content): idx
+                for idx, content in enumerate(input_contents)
+            }
+            for future in as_completed(future_to_idx):
+                idx = future_to_idx[future]
+                try:
+                    results[idx] = future.result()
+                except Exception as e:
+                    if self.logger:
+                        self.logger.error(f"[batch][#{idx}] 调用失败：{e}", exc_info=True)
+                    else:
+                        print(f"[batch][#{idx}] 调用失败：{e}")
+                    results[idx] = ""
         return results
     
     
@@ -120,3 +132,10 @@ class APIInference(BaseInference):
                 time.sleep(time_to_sleep)
                 continue
 
+
+        """
+        初始化 API 模式：
+          - 根据配置创建 OpenAI 客户端
+          - 设置模型名称等参数
+        注意：API 模式不加载本地模型与分词器，因此不需要 device 管理配置
+        """

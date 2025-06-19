@@ -51,14 +51,15 @@ def vanilla_infer():
         
     
 def api_infer():
+    api_conflg = ApiConfig(
+                api_key="sk-apikey",
+                url = "https://api-platform"
+            )
     config = InferenceConfig(
             model_name="gpt-4o",
             generation_params=GenerationParams(),
             chat_type="api",
-            api_config=ApiConfig(
-                api_key="sk-apikey",
-                url = "https://api-platform"
-            )
+            api_config= api_conflg
         )
     
     model_infer = ModelInference(config,"test",GPUManager(2))

@@ -112,6 +112,7 @@ class ApiConfig:
     url: str = None           
     max_retries :int = 3
     backoff_factor :float = 1.0
+    max_concurrent_requests: int = 4
     
     def to_dict(self) -> Dict[str, Any]:
         params = asdict(self)
