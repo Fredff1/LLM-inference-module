@@ -33,7 +33,7 @@ class BaseInference(ABC):
         pass
 
     @abstractmethod
-    def run(self, input_content) -> str:
+    def run(self, input_content) -> Union[str,Any]:
         """
         单个输入的推理生成接口
         :param input_text: 单条输入文本
@@ -42,7 +42,7 @@ class BaseInference(ABC):
         pass
 
     @abstractmethod
-    def run_batch(self, input_contents: List) -> List[str]:
+    def run_batch(self, input_contents: List) -> Union[List[str],List[Any]]:
         """
         批量输入的推理生成接口
         :param input_texts: 包含多条输入文本的列表

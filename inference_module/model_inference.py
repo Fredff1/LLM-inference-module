@@ -41,7 +41,7 @@ class ModelInference:
     
     
         
-    def infer(self,input_content:Union[str,list[str],List])->Union[str,List[str]]:
+    def infer(self,input_content:Union[str,list[str],List[Any]])->Union[str,List[str],Any,List[Any]]:
         """推理入口
 
         Args:
@@ -51,7 +51,7 @@ class ModelInference:
             ValueError: 当不支持推理输入的内容时抛出
 
         Returns:
-            Union[str,List[str]]: 推理结果
+            Union[str,List[str],Any,List[Any]]: 推理结果
         """
         proc,content_type = self.inference_engine.validate_input(input_content)
 
