@@ -105,11 +105,20 @@ def vllm_infer():
         input=model_infer.apply_chat_template(message)
         result=model_infer.infer(input)
         print_result(result)
+        
+def mock_infer():
+    model_infer = ModelInference.from_mock()
+    result = model_infer.infer(input_list)
+    print_result(result)
+    result = model_infer.infer(input_single)
+    print_result(result)
+    
 
 def main():
     # vanilla_infer()
     # vllm_infer()
-    api_infer()
+    # api_infer()
+    mock_infer()
 
 if __name__ == "__main__":
     main()

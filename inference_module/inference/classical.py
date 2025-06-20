@@ -5,7 +5,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from inference_module.inference.base import BaseInference
 from typing import List
 
-from inference_module.token_hanlder.token_hanlder import handle_missing_tokens
+from inference_module.token_handler.token_handler import handle_missing_tokens
 
 
 
@@ -67,7 +67,7 @@ class ClassicalInference(BaseInference):
         return results
     
     def validate_input(self, input):
-        from inference_module.utils.message_utils import format_message
+        # from inference_module.utils.message_utils import format_message
         tpl = self.config.get("apply_chat_template", False)
 
         # 纯文本

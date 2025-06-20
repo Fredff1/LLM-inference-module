@@ -91,6 +91,26 @@ class ModelInference:
         """
         results = self.inference_engine.run_batch(input_texts)
         return results
+
+    def apply_chat_template(self,messages,tokenize=False,add_generation_prompt=True,**additional_params):
+        tokenizer = self.inference_engine.tokenizer
+        template_available = self.inference_engine.config.get("apply_chat_template")
+        if template_available:
+            text = tokenizer.apply_chat_template(
+                        messages,
+                        tokenize=tokenize,
+                        add_generation_prompt=add_generation_prompt,
+                        **additional_params
+                    )
+            return text
+        else:
+            raise ValueError("Tokenizer does not support chat template")
+    
+    @staticmethod
+    def from_mock(task_name:str=None, log_dir:str=None) -> "ModelInference":
+        config = InferenceConfig(model_name="mock",chat_type="mock",log_dir=log_dir)
+        model_infer = ModelInference(config,task_name,None)
+        return model_infer
     
     @staticmethod
     def format_message(user_prompt: Union[str, List[str]],
@@ -132,17 +152,5 @@ class ModelInference:
         return messages
     
     
-    def apply_chat_template(self,messages,tokenize=False,add_generation_prompt=True,**additional_params):
-        tokenizer = self.inference_engine.tokenizer
-        template_available = self.inference_engine.config.get("apply_chat_template")
-        if template_available:
-            text = tokenizer.apply_chat_template(
-                        messages,
-                        tokenize=tokenize,
-                        add_generation_prompt=add_generation_prompt,
-                        **additional_params
-                    )
-            return text
-        else:
-            raise ValueError("Tokenizer does not support chat template")
+    
             

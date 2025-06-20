@@ -2,7 +2,7 @@
 
 from transformers import AutoTokenizer
 from inference_module.inference.base import BaseInference
-from inference_module.token_hanlder.token_hanlder import handle_missing_tokens
+from inference_module.token_handler.token_handler import handle_missing_tokens
 
 try:
     from vllm import LLM ,SamplingParams 
@@ -83,9 +83,8 @@ class VLLMInference(BaseInference):
         return result_texts
     
     def validate_input(self, input):
-        from inference_module.utils.message_utils import format_message
-        tpl = self.config.get("apply_chat_template", False)
-
+        # from inference_module.utils.message_utils import format_message
+        # tpl = self.config.get("apply_chat_template", False)
         # 纯文本
         if isinstance(input, str):
             return input, "single"

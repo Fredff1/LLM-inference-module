@@ -12,6 +12,9 @@ def create_inference_engine(config:dict,gpu_manager:GPUManager,logger) -> BaseIn
     elif type == "vllm":
         from inference_module.inference.vllm import VLLMInference
         return VLLMInference(config,gpu_manager,logger)
+    elif type == "mock":
+        from inference_module.inference.mock import MockInference
+        return MockInference(config,gpu_manager,logger)
     else:
         raise NotImplementedError("Chat type not supported")
         
