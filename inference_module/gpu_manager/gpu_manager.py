@@ -4,11 +4,9 @@ import os
 
 class GPUManager:
     def __init__(self,required_memory_gb=10.0, ignored_gpus:int|list[int]=None):
-        print("初始化 GPU Manager")
         self.available_gpus = []
         self.ignored_gpus = ignored_gpus if ignored_gpus is not None else []  # Default is not to ignore any GPUs
         self.required_memory_gb=required_memory_gb
-        print("初始化可用gpu列表")
         self.refresh_available_gpus(self.required_memory_gb)
         
     def set_max_memory_usage(self,proportion=0.9):
@@ -57,13 +55,13 @@ class GPUManager:
         for gpu_id in all_gpus:
             if gpu_id not in self.ignored_gpus and self.check_gpu_memory(gpu_id, required_memory_gb):
                 self.available_gpus.append(gpu_id)
-        print("-------------------------------------------------------")
-        print("可用GPU已经更新,包括以下GPU")
-        for gpu_id in self.available_gpus:
-            print("GPU ",gpu_id,"目前可用")
-        print("-------------------------------------------------------")
+        # print("-------------------------------------------------------")
+        # print("可用GPU已经更新,包括以下GPU")
+        # for gpu_id in self.available_gpus:
+        #     print("GPU ",gpu_id,"目前可用")
+        # print("-------------------------------------------------------")
         if not self.available_gpus:
-            raise RuntimeError("没有足够的 GPU 可用。")
+            raise RuntimeError("No sufficient GPUs")
 
     def check_gpu_memory(self, gpu_id, required_memory_gb):
         """根据输入的gpu id(从0开始)检查某个 GPU 是否有足够的可用内存"""
@@ -119,7 +117,7 @@ class GPUManager:
             self.ignored_gpus.append(gpu_ids)
         elif isinstance(gpu_ids, list):
             self.ignored_gpus.extend(gpu_ids)
-        print(f"当前忽略的 GPU 列表: {self.ignored_gpus}")
+        # print(f"当前忽略的 GPU 列表: {self.ignored_gpus}")
         self.refresh_available_gpus(self.required_memory_gb)
         
     def remove_ignored_gpus(self, gpu_ids:int|list[int]):
@@ -128,7 +126,7 @@ class GPUManager:
         elif isinstance(gpu_ids, list):
             for gpu_id in gpu_ids:
                 self.ignored_gpus.remove(gpu_id)
-        print(f"已更新忽略的 GPU 列表: {self.ignored_gpus}")
+        # print(f"已更新忽略的 GPU 列表: {self.ignored_gpus}")
         self.refresh_available_gpus(self.required_memory_gb)
 
 

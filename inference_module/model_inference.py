@@ -1,7 +1,7 @@
 # model_inference/model_inference.py
 
 from typing import List
-from inference_module.config.inference_config import InferenceConfig
+from inference_module.config.inference_config import *
 from inference_module.inference.factory import create_inference_engine
 from inference_module.utils.log_utils import init_logging, log_config
 from inference_module.utils.message_utils import merge_messages
@@ -106,11 +106,7 @@ class ModelInference:
         else:
             raise ValueError("Tokenizer does not support chat template")
     
-    @staticmethod
-    def from_mock(task_name:str=None, log_dir:str=None) -> "ModelInference":
-        config = InferenceConfig(model_name="mock",chat_type="mock",log_dir=log_dir)
-        model_infer = ModelInference(config,task_name,None)
-        return model_infer
+    
     
     @staticmethod
     def format_message(user_prompt: Union[str, List[str]],
@@ -150,6 +146,55 @@ class ModelInference:
             messages.append({"role": "assistant", "content": assist_prompt})
         
         return messages
+    
+    @staticmethod
+    def from_mock(model_name="mock",task_name:str=None, log_dir:str=None) -> "ModelInference":
+        config = InferenceConfig(model_name = model_name,chat_type="mock",log_dir=log_dir)
+        model_infer = ModelInference(config,task_name,None)
+        return model_infer
+    
+    @staticmethod
+    def from_api(
+        model_name:str,
+        api_key:str,
+        url:str,
+        max_retries :int = 3,
+        backoff_factor :float = 1.0,
+        max_concurrent_requests: int = 4,
+        max_new_tokens: int = 1024,
+        temperature: float = 1.0,
+        task_name:str = None,
+        log_dir:str = None,
+    ):
+        config = InferenceConfig(
+            model_name=model_name,
+            chat_type="api",
+            generation_params=GenerationParams(
+                max_new_tokens=max_new_tokens,
+                temperature=temperature
+            ),
+            api_config=ApiConfig(
+                api_key=api_key,
+                url=url,
+                max_retries=max_retries,
+                backoff_factor=backoff_factor,
+                max_concurrent_requests=max_concurrent_requests
+            ),
+            log_dir=log_dir
+        )
+        model_infer = ModelInference(
+            full_config=config,
+            task_name=task_name,
+        )
+        return model_infer
+    
+    @staticmethod
+    def from_vllm():
+        pass
+    
+    @staticmethod
+    def from_classical():
+        pass
     
     
     
