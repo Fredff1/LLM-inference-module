@@ -1,6 +1,8 @@
 # inference/vllm.py
+import os
 
 from transformers import AutoTokenizer
+
 from inference_module.inference.base import BaseInference
 from inference_module.token_handler.token_handler import handle_missing_tokens
 
@@ -20,10 +22,10 @@ class VLLMInference(BaseInference):
         """
         
         
-        model_full_path = self.config["model_path"] + self.config["model_name"]
+        model_path = os.path.join(self.config.get("model_path"),self.config.get("model_name"))
         
         self.tokenizer = AutoTokenizer.from_pretrained(
-            model_full_path,
+            model_path,
             **self.config.get("tokenizer_init_args")
         )
         
@@ -38,7 +40,7 @@ class VLLMInference(BaseInference):
         vllm_args["tensor_parallel_size"] = tensor_parallel_size
         
         self.model = LLM(
-            model_full_path,
+            model_path,
             tokenizer_mode="auto",
             **vllm_args
         )
@@ -82,14 +84,14 @@ class VLLMInference(BaseInference):
         result_texts = [output.outputs[0].text for output in outputs]
         return result_texts
     
-    def validate_input(self, input):
+    def validate_input(self, input_content):
         # from inference_module.utils.message_utils import format_message
         # tpl = self.config.get("apply_chat_template", False)
         # 纯文本
-        if isinstance(input, str):
-            return input, "single"
-        if isinstance(input, list) and input and all(isinstance(x, str) for x in input):
-            return input, "list"
+        if isinstance(input_content, str):
+            return input_content, "single"
+        if isinstance(input_content, list) and input_content and all(isinstance(x, str) for x in input_content):
+            return input_content, "list"
 
         
         raise ValueError(

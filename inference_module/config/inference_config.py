@@ -51,7 +51,7 @@ class ModelInitParams:
 class TokenizerInitParams:
     padding_side: str = "left" 
     trust_remote_code: bool = True 
-    cache_dir: str = None,
+    cache_dir: str = None
     additional: Dict[str, Any] = field(default_factory=dict)  
     def to_dict(self) -> Dict[str, Any]:
         params = asdict(self)

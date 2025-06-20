@@ -1,10 +1,12 @@
 # inference/classical.py
 
-import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
-from inference_module.inference.base import BaseInference
+import os
 from typing import List
 
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+from inference_module.inference.base import BaseInference
 from inference_module.token_handler.token_handler import handle_missing_tokens
 
 
@@ -14,7 +16,7 @@ class ClassicalInference(BaseInference):
 
     
     def initialize(self) -> None:
-        model_path = self.config["model_path"] + self.config["model_name"]
+        model_path = os.path.join(self.config.get("model_path"),self.config.get("model_name"))
         model_init_args = self.config.get("model_init_args")
         tokenizer_init_args = self.config.get("tokenizer_init_args")
         device_config = self.config.get('device_config')
@@ -66,15 +68,15 @@ class ClassicalInference(BaseInference):
         results = self.tokenizer.batch_decode(generated_outputs, skip_special_tokens=True)
         return results
     
-    def validate_input(self, input):
+    def validate_input(self, input_content):
         # from inference_module.utils.message_utils import format_message
         tpl = self.config.get("apply_chat_template", False)
 
         # 纯文本
-        if isinstance(input, str):
-            return input, "single"
-        if isinstance(input, list) and input and all(isinstance(x, str) for x in input):
-            return input, "list"
+        if isinstance(input_content, str):
+            return input_content, "single"
+        if isinstance(input_content, list) and input_content and all(isinstance(x, str) for x in input_content):
+            return input_content, "list"
 
         
         raise ValueError(

@@ -15,7 +15,8 @@ def handle_missing_tokens(inference_obj:BaseInference):
         "qwen2.5": QwenTokenHandler(),
         "qwen2": QwenTokenHandler(),
         "qwen3": QwenTokenHandler(),
-        "qwen":QwenTokenHandler()
+        "qwen":QwenTokenHandler(),
+        "default":DefaultTokenHandler(),
     }
     
     if inference_obj.config["model_type"] == "auto":
@@ -47,6 +48,10 @@ class BaseTokenHandler(ABC):
                               - logger
         """
         pass
+    
+class DefaultTokenHandler(BaseTokenHandler):
+    def handle(self, inference_obj):
+        return
 
 class LlamaTokenHandler(BaseTokenHandler):
     def handle(self, inference_obj):

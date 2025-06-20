@@ -16,5 +16,5 @@ def create_inference_engine(config:dict,gpu_manager:GPUManager,logger) -> BaseIn
         from inference_module.inference.mock import MockInference
         return MockInference(config,gpu_manager,logger)
     else:
-        raise NotImplementedError("Chat type not supported")
+        raise NotImplementedError(f"Chat type {type} not supported")
         

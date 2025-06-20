@@ -17,8 +17,8 @@ class MockInference(BaseInference):
                 for i in input_contents
             ]
     
-    def validate_input(self, input):
-        if isinstance(input,list):
-            return input, "list"
+    def validate_input(self, input_content):
+        if isinstance(input_content,list):
+            return input_content, "list"
         else:
-            return input, "single"
+            return input_content, "single"

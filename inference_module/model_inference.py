@@ -125,12 +125,12 @@ class ModelInference:
         """
         构造用于推理的消息列表，每条消息包含 role 和 content 字段。
         
-        参数:
+        Args:
         - user_prompt: 用户输入的提示文本，可为 str 或字符串列表（若需批量处理）。
         - sys_prompt: 系统提示文本（可选）。
         - assist_prompt: 助手提示文本（可选）。
         
-        返回:
+        Returns:
         - List[Dict[str, Any]]: 格式化后的消息列表，至少包含 user 消息。
         
         注意:

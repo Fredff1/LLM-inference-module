@@ -15,14 +15,8 @@ class BaseInference(ABC):
         self.config = config
         self.model = None
         self.tokenizer = None
-        self.gpu_manager = gpu_manager
-        self.logger = logger
-        self.model_name = config.get("model_name")
-        self.model_path = config.get("model_path")
-        self.model_type = config.get("model_type","auto")
-        self.chat_type = config.get("chat_type")
-        self.full_path = os.path.join(self.model_path,self.model_name)
-        
+        self._gpu_manager = gpu_manager
+        self._logger = logger
         self.initialize()
 
     @abstractmethod
@@ -53,7 +47,7 @@ class BaseInference(ABC):
     @abstractmethod
     def validate_input(
         self,
-        input: Union[str, List[str], List[Dict[str, Any]]]
+        input_content: Union[str, List[str], List[Dict[str, Any]]]
     ) -> Union[str, List[str], List[Dict[str, Any]]]:
         """
         校验并归一化输入，合法时返回子类 run/run_batch 能直接接受的格式，

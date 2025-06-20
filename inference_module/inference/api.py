@@ -17,7 +17,7 @@ class APIInference(BaseInference):
             api_key=api_config.get("api_key"),
             base_url=api_config.get("url")
         )
-        self.model_name = self.config["model_name"]
+        self._model_name = self.config["model_name"]
 
         
 
@@ -53,27 +53,24 @@ class APIInference(BaseInference):
                 try:
                     results[idx] = future.result()
                 except Exception as e:
-                    if self.logger:
-                        self.logger.error(f"[batch][#{idx}] 调用失败：{e}", exc_info=True)
+                    if self._logger:
+                        self._logger.error(f"[batch][#{idx}] 调用失败：{e}", exc_info=True)
                     else:
                         print(f"[batch][#{idx}] 调用失败：{e}")
                     results[idx] = ""
         return results
     
     
-    def validate_input(self, input):
+    def validate_input(self, input_content):
         from inference_module.utils.message_utils import format_message
 
 
-        if isinstance(input, list) and input and all(isinstance(x, dict) for x in input):
-            return input,"single"
-        elif isinstance(input, list) and input and all(isinstance(x, list) for x in input):
-            return input,"list"
+        if isinstance(input_content, list) and input_content and all(isinstance(x, dict) for x in input_content):
+            return input_content,"single"
+        elif isinstance(input_content, list) and input_content and all(isinstance(x, list) for x in input_content):
+            return input_content,"list"
         raise ValueError("API 模式只支持标准消息格式")
     
-    def decode_unicode_response(content):
-        content = unicodedata.normalize('NFKC', content)
-        return content
 
     def _generate_api_response(self, messages: List[Dict[str, Any]]) -> str:
         """
@@ -84,7 +81,7 @@ class APIInference(BaseInference):
         """
         model_generate_args: Dict[str, Any] = self.config.get("model_generate_args", {})
         args: Dict[str, Any] = {
-        "model":       self.model_name,
+        "model":       self._model_name,
         "messages":    messages,
         "temperature": model_generate_args.get("temperature", 0.2),
         }
@@ -109,16 +106,16 @@ class APIInference(BaseInference):
 
             except Exception as e:
                 msg = f"[API attempt {attempt}/{max_retries}] Error: {e}"
-                if self.logger:
-                    self.logger.warning(msg, exc_info=True)
+                if self._logger:
+                    self._logger.warning(msg, exc_info=True)
                 else:
                     print(msg)
                     traceback.print_exc()
 
                 if attempt == max_retries:
                     final_msg = f"API Failed after repeating {max_retries} times, aborting."
-                    if self.logger:
-                        self.logger.error(final_msg)
+                    if self._logger:
+                        self._logger.error(final_msg)
                     else:
                         print(final_msg)
                     return ""
@@ -127,15 +124,10 @@ class APIInference(BaseInference):
 
                 jitter = sleep_time * 0.1
                 time_to_sleep = sleep_time + (jitter * (2 * random.random() - 1))
-                if self.logger:
-                    self.logger.info(f"Sleeping {time_to_sleep:.2f}s before retry…")
+                if self._logger:
+                    self._logger.info(f"Sleeping {time_to_sleep:.2f}s before retry…")
                 time.sleep(time_to_sleep)
                 continue
 
 
-        """
-        初始化 API 模式：
-          - 根据配置创建 OpenAI 客户端
-          - 设置模型名称等参数
-        注意：API 模式不加载本地模型与分词器，因此不需要 device 管理配置
-        """
+      
