@@ -45,13 +45,23 @@ class ModelInference:
         """推理入口
 
         Args:
-            input_content (Union[str,list[str],List]): 输入的文本（用于本地推理）或消息（用于api）
-
+            input_content (Union[str,list[str],List]): 用于推理的内容，不同的推理类型支持不同的输入内容
+            - 支持单个输入或批次输入，并会自动返回单个结果或结果列表
+            - classical 支持字符串或字符串列表
+            - vllm 支持字符串或字符串列表
+            - api 支持单个包含角色信息的messages或其列表
+            - mock 支持字符串或字符串列表
+            
         Raises:
             ValueError: 当不支持推理输入的内容时抛出
 
         Returns:
-            Union[str,List[str],Any,List[Any]]: 推理结果
+            Union[str,List[str],Any,List[Any]]: 推理结果，不同的推理类型返回不同的推理结果
+            - 根据是否是batch输入决定是否返回列表形式结果
+            - classical 返回字符串或字符串列表
+            - vllm 返回字符串或字符串列表
+            - api 根据api调用类型返回不同类型的结果
+            - mock 返回mock的字符串或字符串列表
         """
         proc,content_type = self.inference_engine.validate_input(input_content)
 
@@ -149,6 +159,16 @@ class ModelInference:
     
     @staticmethod
     def from_mock(model_name="mock",task_name:str=None, log_dir:str=None) -> "ModelInference":
+        """快速构造mock模式的推理实例
+
+        Args:
+            model_name (str, optional): 模型名称. Defaults to "mock".
+            task_name (str, optional): 任务名称. Defaults to None.
+            log_dir (str, optional): 日志路径. Defaults to None.
+
+        Returns:
+            ModelInference:推理实例
+        """
         config = InferenceConfig(model_name = model_name,chat_type="mock",log_dir=log_dir)
         model_infer = ModelInference(config,task_name,None)
         return model_infer
@@ -165,7 +185,24 @@ class ModelInference:
         temperature: float = 1.0,
         task_name:str = None,
         log_dir:str = None,
-    ):
+    ) -> "ModelInference":
+        """快速构造api模式的推理实例
+
+        Args:
+            model_name (str): 模型名称
+            api_key (str): api密钥
+            url (str): api的url
+            max_retries (int, optional): 最大重试次数. Defaults to 3.
+            backoff_factor (float, optional): 抖动因子. Defaults to 1.0.
+            max_concurrent_requests (int, optional): 最大并行请求数. Defaults to 4.
+            max_new_tokens (int, optional): 最大新token. Defaults to 1024.
+            temperature (float, optional): 温度. Defaults to 1.0.
+            task_name (str, optional): 任务名称. Defaults to None.
+            log_dir (str, optional): 日志路径. Defaults to None.
+
+        Returns:
+            ModelInference:推理实例
+        """
         config = InferenceConfig(
             model_name=model_name,
             chat_type="api",
@@ -189,12 +226,135 @@ class ModelInference:
         return model_infer
     
     @staticmethod
-    def from_vllm():
-        pass
+    def from_classical(
+        model_name: str,                    
+        model_path: str,                       
+        model_type:str = 'auto',
+        max_new_tokens: int = 1024,         
+        temperature: float = 1.0,     
+        apply_chat_template = False,  
+        log_dir:str = None,   
+        task_name:str = None,
+        top_p: float = 1.0,               
+        top_k: int = 50,                   
+        do_sample: bool = True,            
+        num_beams: int = 1,                
+        length_penalty: float = 1.0,       
+        use_cache: bool = True,            
+        repetition_penalty: float = 1.0,
+    )-> "ModelInference":
+        """快速构造经典模式的推理实例
+
+        Args:
+            model_name (str): 模型目录名称
+            model_path (str): 到模型的路径，会与model_name拼接得到完整路径
+            model_type (str, optional): 模型类型. Defaults to 'auto'.
+            max_new_tokens (int, optional): 最大新token. Defaults to 1024.
+            temperature (float, optional): 温度. Defaults to 1.0.
+            apply_chat_template (bool, optional): 是否支持chat_template. Defaults to False.
+            log_dir (str, optional): 日志路径. Defaults to None.
+            task_name (str, optional): 任务名称. Defaults to None.
+            top_p (float, optional): top_p参数. Defaults to 1.0.
+            top_k (int, optional): top_k参数. Defaults to 50.
+            do_sample (bool, optional): 采样启用参数. Defaults to True.
+            num_beams (int, optional): num_beams参数. Defaults to 1.
+            length_penalty (float, optional): 长度惩罚. Defaults to 1.0.
+            use_cache (bool, optional): 启用缓存. Defaults to True.
+            repetition_penalty (float, optional): 重复惩罚. Defaults to 1.0.
+
+        Returns:
+            ModelInference: 推理实例
+        """
+        config = InferenceConfig(
+            model_name=model_name,
+            model_path=model_path,
+            chat_type="classical",
+            model_type=model_type,
+            apply_chat_template=apply_chat_template,
+            generation_params=GenerationParams(
+                max_new_tokens=max_new_tokens,
+                temperature=temperature,
+                top_p=top_p,
+                top_k=top_k,
+                do_sample=do_sample,
+                num_beams=num_beams,
+                length_penalty=length_penalty,
+                use_cache=use_cache,
+                repetition_penalty=repetition_penalty
+            ),
+            log_dir=log_dir
+        )
+        model_infer = ModelInference(
+            full_config=config,
+            task_name=task_name,
+            gpu_manager=None
+        )
+        return model_infer
     
     @staticmethod
-    def from_classical():
-        pass
+    def from_vllm(
+        model_name: str,                    
+        model_path: str,                       
+        model_type:str = 'auto',
+        max_tokens: int = 1024,                
+        temperature: float = 1.0,
+        apply_chat_template = False,    
+        tensor_parallel_size: Union[int, str] = 1,  
+        gpu_memory_utilization: float = 0.8,
+        max_num_seqs: int = 16,     
+        log_dir:str = None,   
+        task_name:str = None,                   
+        top_p: float = 1.0,                   
+        top_k: int = 50,                       
+        repetition_penalty: float = 1.0,       
+    )-> "ModelInference":
+        """快速构造vllm的推理实例
+
+        Args:
+            model_name (str): 模型目录名称
+            model_path (str): 到模型的路径，会与model_name拼接得到完整路径
+            model_type (str, optional): 模型类型. Defaults to 'auto'.
+            max_tokens (int, optional): 最大token数. Defaults to 1024.
+            temperature (float, optional): 温度. Defaults to 1.0.
+            apply_chat_template (bool, optional): 是否支持推理模板. Defaults to False.
+            tensor_parallel_size (Union[int, str], optional): 张量并行度. Defaults to 1.
+            gpu_memory_utilization (float, optional): gpu显存使用率. Defaults to 0.8.
+            max_num_seqs (int, optional): 最大seq数. Defaults to 16.
+            log_dir (str, optional): 日志路径. Defaults to None.
+            task_name (str, optional): 任务名称. Defaults to None.
+            top_p (float, optional): top_p参数. Defaults to 1.0.
+            top_k (int, optional): top_k参数. Defaults to 50.
+            repetition_penalty (float, optional): 重复惩罚. Defaults to 1.0.
+
+        Returns:
+            ModelInference: 推理实例
+        """
+        config = InferenceConfig(
+            model_name=model_name,
+            model_path=model_path,
+            chat_type="vllm",
+            model_type=model_type,
+            apply_chat_template=apply_chat_template,
+            vllm_params=VLLMParams(
+                tensor_parallel_size=tensor_parallel_size,
+                gpu_memory_utilization=gpu_memory_utilization,
+                max_num_seqs=max_num_seqs
+            ),
+            sampling_params=VllmSamplingParams(
+                max_tokens=max_tokens,
+                temperature=temperature,
+                top_p=top_p,
+                top_k=top_k,
+                repetition_penalty=repetition_penalty
+            ),
+            log_dir=log_dir
+        )
+        model_infer = ModelInference(
+            full_config=config,
+            task_name=task_name,
+            gpu_manager=None
+        )
+        return model_infer
     
     
     
